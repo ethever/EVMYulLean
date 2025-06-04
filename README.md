@@ -63,3 +63,18 @@ lake test -- <NUM_THREADS> 2> out_discard.txt
 ```
 where `<NUM_THREADS>` is the number of threads running conformance tests in parallel. Note that the default is `1`.
 We recommend redirecting `stderr` into a file to not pollute the output.
+
+## Building the project
+
+Install `elan` to manage the Lean toolchain:
+
+```bash
+curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+export PATH="$HOME/.elan/bin:$PATH"
+```
+
+After installation, build the project using `lake`:
+
+```bash
+lake build
+```
