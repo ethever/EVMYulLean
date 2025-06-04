@@ -93,7 +93,7 @@ def compileExpr (layout : Std.HashMap Identifier UInt256) : Yul.Ast.Expr → Lis
   | .Lit v => [.push v]
   | .Var x => [.mload (layout.findD x ⟨0⟩)]
   | .PrimCall (.StopArith .ADD) [e₁, e₂] =>
-      compileExpr e₁ ++ compileExpr e₂ ++ [.add]
+      compileExpr layout e₁ ++ compileExpr layout e₂ ++ [.add]
   | _ => []
 
 /-- Compile an assignment statement. -/
