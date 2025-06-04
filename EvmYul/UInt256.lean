@@ -17,7 +17,7 @@ def UInt256.size : ℕ :=
 
 structure UInt256 where
   val : Fin UInt256.size
-  deriving BEq, Ord
+  deriving BEq, Ord, Hashable
 
 instance : ToString UInt256 where
   toString a := toString a.val

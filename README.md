@@ -78,3 +78,10 @@ After installation, build the project using `lake`:
 ```bash
 lake build
 ```
+
+## Simple example compiler
+
+The file `EvmYul/SimpleCompiler.lean` contains a minimal compiler from a tiny
+fragment of Yul into a toy EVM machine together with correctness lemmas. The
+compiler supports literals, variables and the `ADD` operation as well as simple
+assignment statements.

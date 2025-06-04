@@ -56,13 +56,15 @@ def run (code : List Instr) (st : State) : Option State :=
   code.foldlM (fun s i => step i s) st
 
 lemma run_append (c₁ c₂ : List Instr) (s : State) :
-    run (c₁ ++ c₂) s = do
-      let s' ← run c₁ s
-      run c₂ s' := by
+    run (c₁ ++ c₂) s =
+      (do
+        let s' ← run c₁ s
+        run c₂ s') := by
   induction c₁ generalizing s with
-  | nil => simp [run]
+  | nil =>
+    simp [run]
   | cons i is ih =>
-      simp [run, List.foldlM, ih, bind_assoc]
+    simp [run, List.foldlM, ih, bind_assoc]
 
 end MiniEVM
 
@@ -93,7 +95,7 @@ def compileExpr (layout : Std.HashMap Identifier UInt256) : Yul.Ast.Expr → Lis
   | .Lit v => [.push v]
   | .Var x => [.mload (layout.findD x ⟨0⟩)]
   | .PrimCall (.StopArith .ADD) [e₁, e₂] =>
-      compileExpr e₁ ++ compileExpr e₂ ++ [.add]
+      compileExpr layout e₁ ++ compileExpr layout e₂ ++ [.add]
   | _ => []
 
 /-- Compile an assignment statement. -/
@@ -101,6 +103,19 @@ def compileStmt (layout : Std.HashMap Identifier UInt256) : Yul.Ast.Stmt → Lis
   | .Assign x e =>
       compileExpr layout e ++ [.mstore (layout.findD x ⟨0⟩)]
   | _ => []
+
+/-- Sequential execution of a list of statements. -/
+def execProgram (σ : YState) : List Yul.Ast.Stmt → Option YState
+  | []      => some σ
+  | s :: ss => do
+      let σ' ← execStmt σ s
+      execProgram σ' ss
+
+/-- Compile a list of statements into MiniEVM instructions. -/
+def compileProgram (layout : Std.HashMap Identifier UInt256)
+    : List Yul.Ast.Stmt → List Instr
+  | []      => []
+  | s :: ss => compileStmt layout s ++ compileProgram layout ss
 
 /--
 Convert a Yul state into a MiniEVM memory using a variable layout.
@@ -133,7 +148,7 @@ lemma compileExpr_correct
   | Var x =>
       simp [compileExpr, evalExpr] at h
       simp [compileExpr, MiniEVM.run, MiniEVM.step, memOf, YState.findD, h]
-  | PrimCall (.StopArith .ADD) [e₁, e₂] ih₁ ih₂ =>
+  | .PrimCall (.StopArith .ADD) [e₁, e₂] ih₁ ih₂ =>
       simp [compileExpr, evalExpr] at h
       cases h₁ : evalExpr σ e₁ with
       | none => simp [h₁] at h
