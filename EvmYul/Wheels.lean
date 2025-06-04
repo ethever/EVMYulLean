@@ -52,6 +52,7 @@ instance : ToString Identifier := inferInstanceAs (ToString String)
 instance : Inhabited Identifier := inferInstanceAs (Inhabited String)
 instance : DecidableEq Identifier := inferInstanceAs (DecidableEq String)
 instance : Repr Identifier := inferInstanceAs (Repr String)
+instance : Hashable Identifier := inferInstanceAs (Hashable String)
 
 namespace NaryNotation
 
